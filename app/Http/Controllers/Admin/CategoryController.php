@@ -2,8 +2,6 @@
 
 namespace App\Http\Controllers\Admin;
 
-use App\Models\Category;
-use Illuminate\Support\Facades\Validator;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 
@@ -26,23 +24,17 @@ class CategoryController extends Controller
 
     public function create()
     {
-
         return abort(404);
     }
 
     public function store(Request $request)
     {
+        $data = $request->all();
         try {
-            $data = $request->all();
-            $validator = $this->categoryService->validateStore($data);
-            if ($validator->fails()) {
-                throw new \Exception('Category created failed');
-            }
             $this->categoryService->create($data);
             return back()->with('success', 'Category created successfully ');
-
         } catch (\Exception $e) {
-            return back()->withErrors($validator)->with('error', $e->getMessage())->withInput();
+            return back()->with('error', $e->getMessage())->withInput();
         }
 
     }
@@ -64,29 +56,22 @@ class CategoryController extends Controller
     }
     public function update(Request $request, $id)
     {
+        $data = $request->all();
         try {
-            $data = $request->all();
-            $validator = $this->categoryService->validateUpdate($data, $id);
-            if ($validator->fails()) {
-                throw new \Exception('Category update  failed');
-            }
-
             $update = $this->categoryService->update($id, $data);
             $message = 'Update category successfully! ' . "<br> <b> " . $update->name . "</b>";
             return redirect(route('admin.categories.index'))->with('success', $message);
-
         } catch (\Exception $e) {
             return back()
-                ->withErrors($validator)->with('error', $e->getMessage())->withInput();
+                ->with('error', $e->getMessage())->withInput();
         }
     }
     public function destroy($id)
     {
         try {
-            $delete = $this->categoryService->delete($id);
+            $this->categoryService->delete($id);
             $mess = 'Delete Category Success';
             return redirect()->back()->with('success', $mess);
-
         } catch (\Exception $e) {
             return back()->with('error', $e->getMessage());
         }
