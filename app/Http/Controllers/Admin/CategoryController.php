@@ -19,19 +19,16 @@ class CategoryController extends Controller
 
     public function index()
     {
-
         $categories = $this->categoryService->getCategories();
 
         return view('admin/category.add', compact('categories'));
     }
-
 
     public function create()
     {
 
         return abort(404);
     }
-
 
     public function store(Request $request)
     {
@@ -42,10 +39,10 @@ class CategoryController extends Controller
                 throw new \Exception('Category created failed');
             }
             $this->categoryService->create($data);
-            return redirect()->back()->with('success', 'Category created successfully ');
+            return back()->with('success', 'Category created successfully ');
 
         } catch (\Exception $e) {
-            return redirect()->back()->withErrors($validator)->with('error', $e->getMessage())->withInput();
+            return back()->withErrors($validator)->with('error', $e->getMessage())->withInput();
         }
 
     }
@@ -58,12 +55,11 @@ class CategoryController extends Controller
 
     public function edit($id)
     {
-
         try {
             $category = $this->categoryService->edit($id);
             return view('admin/category.show', compact('category'));
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
     }
     public function update(Request $request, $id)
@@ -80,7 +76,7 @@ class CategoryController extends Controller
             return redirect(route('admin.categories.index'))->with('success', $message);
 
         } catch (\Exception $e) {
-            return redirect()->back()
+            return back()
                 ->withErrors($validator)->with('error', $e->getMessage())->withInput();
         }
     }
@@ -92,10 +88,8 @@ class CategoryController extends Controller
             return redirect()->back()->with('success', $mess);
 
         } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
+            return back()->with('error', $e->getMessage());
         }
-
-
     }
 
 }

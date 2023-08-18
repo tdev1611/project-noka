@@ -4,10 +4,10 @@
 @section('content')
 
     <x-SizeBar />
- 
+    <x-Alert />
     <div id="grid-selector">
         <div id="grid-menu">
-        
+
         </div>
         {{-- Showing 1–9 of 48 results --}}
     </div>

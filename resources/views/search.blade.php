@@ -3,8 +3,8 @@
 @section('content')
 
     <x-SizeBar />
+    <x-Alert />
     <div id="grid">
-
         @forelse ($products as $product)
             <div class="product">
                 <div class="make3D">

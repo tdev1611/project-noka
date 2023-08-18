@@ -1,21 +1,26 @@
 <?php
 namespace App\Services\Client;
 
-use App\Models\Category;
-
+use App\Repositories\Client\CategoryRepository;
 
 class CategoryService
 {
+    protected $categoryRepository;
+    function __construct(CategoryRepository $categoryRepository)
+    {
+        $this->categoryRepository = $categoryRepository;
+    }
     function getCategories()
     {
-        $categories = Category::where('status', 1)->orderBy('name', 'ASC')->paginate(8);
+        $categories = $this->categoryRepository->getAll();
         return $categories;
     }
+    // get by slug
     function find($slug)
     {
-        $category = Category::where('slug', $slug)->first();
-        if (!$category) {
-            throw new \Exception('Not Found category');
+        $category = $this->categoryRepository->getBySlug($slug);
+        if ($category === null) {
+            throw new \Exception('Category not found');
         }
         return $category;
     }

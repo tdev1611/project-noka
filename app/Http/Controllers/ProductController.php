@@ -41,16 +41,20 @@ class ProductController extends Controller
     }
     function productByCategory($slug)
     {
-        $nameCate = $this->categoryService->find($slug)->name;
-        $products = $this->categoryService->getProduct($slug);
-        return view('product.byCategory', compact('products', 'nameCate'));
+        try {
+            $nameCate = $this->categoryService->find($slug)->name;
+            $products = $this->categoryService->getProduct($slug);
+            return view('product.byCategory', compact('products', 'nameCate'));
+        } catch (\Exception $e) {
+            return back()->with('error', $e->getMessage(), );
+        }
     }
 
 
     function productByColor($slug)
     {
-        $color = $this->colorService->find($slug);
-        $nameColor = $color->name;
+
+        $nameColor = $this->colorService->find($slug)->name;
         $products = $this->colorService->getProduct($slug);
         return view('product.byColor', compact('products', 'nameColor'));
     }

@@ -10,6 +10,22 @@ class CategoryRepository
     {
         $this->category = $category;
     }
+    function getAll()
+    {
+        $categories = Category::where('status', 1)->orderBy('name', 'ASC')->paginate(8);
+        return $categories;
+    }
+
+    // get by slug
+    function getBySlug($slug)
+    {
+        $category = Category::where('slug', $slug)->first();
+        if (!$category) {
+            return null;
+        }
+        return $category;
+    }
+
 
 }
 

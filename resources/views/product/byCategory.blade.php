@@ -4,7 +4,7 @@
 @section('content')
 
     <x-SizeBar />
-
+    <x-Alert />
     @if ($products->count() > 0)
         Showing {{ $products->count() }} of {{ $products->total() }} results
     @endif
@@ -14,7 +14,7 @@
         {{ $nameCate }}
     </x-NameGenre>
     <div id="grid">
-
+      
         @forelse ($products as $product)
             <div class="product">
                 <div class="make3D">
