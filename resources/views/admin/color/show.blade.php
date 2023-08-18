@@ -7,16 +7,7 @@
                 <h5 class="card-title fw-semibold mb-4">Edit Color</h5>
                 <h5 class="card-title fw-semibold mb-4 text-end"><a href="{{ route('admin.colors.index') }}">Back</a></h5>
                 <div class="card">
-                    @if (session('error'))
-                        <div class="alert alert-danger w-50" id="notification">
-                            {{ session('error') }}
-                        </div>
-                    @endif
-                    @if (session('success'))
-                        <div class="alert alert-success w-50" id="notification">
-                            {!! session('success') !!}
-                        </div>
-                    @endif
+                    <x-Alert />
 
                     <div class="card-body">
 

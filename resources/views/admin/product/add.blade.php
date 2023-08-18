@@ -22,7 +22,7 @@
 
                     var reader = new FileReader();
                     reader.onload = function() {
-                      
+
                         var id = 'blobid' + (new Date()).getTime();
                         var blobCache = tinymce.activeEditor.editorUpload.blobCache;
                         var base64 = reader.result.split(',')[1];
@@ -45,16 +45,7 @@
         <div class="card">
             <div class="card-body">
                 <h5 class="card-title fw-semibold mb-4">Add Product</h5>
-                @if (session('error'))
-                    <div class="alert alert-danger w-50" id="notification">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                @if (session('success'))
-                    <div class="alert alert-success w-50" id="notification">
-                        {!! session('success') !!}
-                    </div>
-                @endif
+                <x-Alert />
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('admin.products.store') }}" method="post" enctype="multipart/form-data">

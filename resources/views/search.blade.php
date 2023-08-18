@@ -2,10 +2,9 @@
 
 @section('content')
 
-
     <x-SizeBar />
-
     <div id="grid">
+
         @forelse ($products as $product)
             <div class="product">
                 <div class="make3D">

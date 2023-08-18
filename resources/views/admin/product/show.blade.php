@@ -47,16 +47,7 @@
                 <h5 class="card-title fw-semibold mb-4">Edit Product</h5>
                 <h5 class="card-title fw-semibold mb-4 text-end"><a href="{{ route('admin.products.index') }}">Back</a>
                 </h5>
-                @if (session('error'))
-                    <div class="alert alert-danger w-50" id="notification">
-                        {{ session('error') }}
-                    </div>
-                @endif
-                @if (session('success'))
-                    <div class="alert alert-success w-50" id="notification">
-                        {!! session('success') !!}
-                    </div>
-                @endif
+                <x-Alert />
                 <div class="card">
                     <div class="card-body">
                         <form action="{{ route('admin.products.update', $product->id) }}" method="post"
