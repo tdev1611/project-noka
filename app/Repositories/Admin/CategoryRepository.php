@@ -1,5 +1,5 @@
 <?php
-namespace App\Services\Admin;
+namespace App\Repositories\Admin;
 
 use App\Models\Category;
 

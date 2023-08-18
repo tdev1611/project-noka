@@ -10,6 +10,7 @@ use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Client\CartService;
 
+
 class CartController extends Controller
 {
     protected $cartService;
@@ -55,7 +56,7 @@ class CartController extends Controller
             ]);
         }
     }
-   
+
     function updateAjax(Request $request)
     {
         try {

@@ -1,9 +1,9 @@
 <?php
-namespace App\Services\Admin;
+namespace App\Repositories\Client;
 
 use App\Models\Cart;
-
-class ProductRepository
+use Gloudemans\Shoppingcart\Facades\Cart as SessionCart;
+class CartRepository
 {
     protected $cart;
     function __construct(Cart $cart)

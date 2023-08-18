@@ -5,14 +5,15 @@ use App\Models\Cart;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Product;
 use Gloudemans\Shoppingcart\Facades\Cart as SessionCart;
-use Illuminate\Support\Str;
+use App\Repositories\Client\CartRepository;
 
 class CartService
 {
-
+    
     // cart to session
     function getSessionCart()
     {
+       
         return SessionCart::content();
     }
     function CountSessionCart()
