@@ -1,106 +1,76 @@
 <?php
 namespace App\Services\Client;
 
-use App\Models\Cart;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Product;
-use Gloudemans\Shoppingcart\Facades\Cart as SessionCart;
 use App\Repositories\Client\CartRepository;
+
 
 class CartService
 {
-    
+    protected $cartRepository;
+    function __construct(CartRepository $cartRepository)
+    {
+        $this->cartRepository = $cartRepository;
+    }
+
     // cart to session
     function getSessionCart()
     {
-       
-        return SessionCart::content();
+        return $this->cartRepository->getCartSessionAll();
     }
     function CountSessionCart()
     {
-        return SessionCart::count();
+        return $this->cartRepository->CountSessionCart();
     }
     //add cart to session
     function addSessionCart()
     {
-        $id = request()->input('id');
-        $qty = request()->input('qty');
-        $color = request()->input('color');
-        $size = request()->input('size');
-        $product = Product::find($id);
-        if (!$product) {
-            throw new \Exception('Product not found');
-        }
-        $slug = $product->slug;
-        $cart = SessionCart::add([
-            'id' => $product->id,
-            'name' => $product->name,
-            'qty' => $qty,
-            'price' => $product->price,
-            'options' => [
-                'image' => $product->image,
-                'color' => $color,
-                'size' => $size,
-                'slug' => $slug,
-            ]
-        ]);
-        return $cart;
+        return $this->cartRepository->addCartSession();
 
+    }
+    //update item in cart 
+    function updateCartSessions()
+    {
+        $item = $this->cartRepository->updateCartSessions();
+        return $item;
     }
 
     // ----------------------------------------------------------------------------
 // cart to db
     function getCartByUser()
     {
-        return Cart::where('user_id', Auth::user()->id)->orderBy('created_at', 'desc')->get();
+        return $this->cartRepository->getCartByUserId();
     }
-    function getCartByRowId($rowId)
+    function getCartById($rowId)
     {
-        $cart = Cart::where('rowId', $rowId)->first();
-        return $cart;
+        return $this->cartRepository->getCartById($rowId);
     }
     function CartCountDb()
     {
-        return Cart::where('user_id', Auth::user()->id)->sum('qty');
+        return $this->cartRepository->CartCountDb();
     }
 
     function addCartDb()
     {
-        $id = request()->input('id');
-        $qty = request()->input('qty');
-        $color = request()->input('color');
-        $size = request()->input('size');
-        $product = Product::find($id);
-        if (!$product) {
+        $item = $this->cartRepository->addCartDb();
+        return $item;
+    }
+    function updateCartDb()
+    {
+        $updateItem = $this->cartRepository->updateCartDb();
+        if ($updateItem === null) {
             throw new \Exception('Product not found');
         }
-        $slug = $product->slug;
-        $rowId = md5($color . $size);
-        $existItem = Cart::where('rowId', $rowId)
-            ->where('user_id', Auth::user()->id)
-            ->first();
-        if ($existItem) {
-            $existItem->qty += $qty;
-            $existItem->subtotal = $existItem->qty * $product->price;
-            return $existItem->save();
-        }
-        $cart = Cart::create([
-            'rowId' => $rowId,
-            'product_id' => $product->id,
-            'user_id' => Auth::user()->id,
-            'name' => $product->name,
-            'qty' => $qty,
-            'subtotal' => $qty * $product->price,
-            'price' => $product->price,
-            'options' => json_encode([
-                'image' => $product->image,
-                'color' => $color,
-                'size' => $size,
-                'slug' => $slug,
-            ])
-        ]);
-        return $cart;
+        return $updateItem;
     }
+    function deleteCartDb($id)
+    {
+        $item = $this->cartRepository->deleteCartDb($id);
+        if ($item === null) {
+            throw new \Exception('Product not found');
+        }
+        return $item;
+    }
+
 
 }
 

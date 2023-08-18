@@ -14,9 +14,11 @@
             width: 40px !important;
             height: auto;
         }
+
         .card {
             box-shadow: 0 1px 15px 1px rgba(52, 40, 104, .08);
         }
+
         .ui-product-color {
             display: inline-block;
             overflow: hidden;
@@ -147,7 +149,7 @@
                         _token: '{{ csrf_token() }}'
                     },
                     success(response) {
-                        console.log(response.message);
+                        // console.log(response.message);
                         $('#subtotal-' + rowId).text(response.subtotal)
                         $('#total_price').text(response.total)
                         $('#count_cart').text(response.cartCount)
