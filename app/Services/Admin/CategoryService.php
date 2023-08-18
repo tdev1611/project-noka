@@ -45,7 +45,7 @@ class CategoryService
 
     function find($id)
     {
-        $cate = Category::find($id);
+        $cate = $this->categoryRepository->find($id);
         if ($cate === null) {
             throw new \Exception('Not found Category');
         }
