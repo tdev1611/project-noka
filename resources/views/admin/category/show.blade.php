@@ -6,7 +6,6 @@
             <div class="card-body">
                 <h5 class="card-title fw-semibold mb-4">Edit Category</h5>
                 <h5 class="card-title fw-semibold mb-4 text-end"><a href="{{ route('admin.categories.index') }}">Back</a></h5>
-
                 <div class="card">
                     <x-Alert />
                     <div class="card-body">
