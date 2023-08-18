@@ -7,8 +7,6 @@ use Illuminate\Support\Facades\Validator;
 class CategoryService
 {
 
-
-
     function getCategories()
     {
         $categories = Category::orderBy('name', 'asc')->paginate(10);

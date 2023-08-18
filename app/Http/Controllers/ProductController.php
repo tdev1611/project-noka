@@ -24,7 +24,7 @@ class ProductController extends Controller
     }
     function index()
     {
-
+        abort(404);
     }
     function detail($slug)
     {

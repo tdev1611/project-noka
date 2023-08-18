@@ -55,34 +55,7 @@ class CartController extends Controller
             ]);
         }
     }
-    function buyNow(Request $request, $id)
-    {
-        try {
-            $product = Product::find($id);
-            if (!$product) {
-                throw new \Exception('Product not found to buy');
-            }
-            $slug = $product->slug;
-            $color = $request->colors;
-            $size = $request->sizes;
-            $qty = $request->input('num_order');
-            Cart::add([
-                'id' => $product->id,
-                'name' => $product->name,
-                'qty' => $qty,
-                'price' => $product->price,
-                'options' => [
-                    'image' => $product->image,
-                    'color' => $color,
-                    'size' => $size,
-                    'slug' => $slug,
-                ]
-            ]);
-            return redirect()->back()->with('success', 'buy Product Success to Cart');
-        } catch (\Exception $e) {
-            return redirect()->back()->with('error', $e->getMessage());
-        }
-    }
+   
     function updateAjax(Request $request)
     {
         try {
