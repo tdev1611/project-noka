@@ -2,11 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 use Gloudemans\Shoppingcart\Facades\Cart as CartSession;
 use App\Models\Cart;
-use App\Models\Product;
 use Illuminate\Support\Facades\Auth;
 use App\Services\Client\CartService;
 
@@ -106,8 +103,6 @@ class CartController extends Controller
             return redirect()->back()->with('error', $e->getMessage());
         }
     }
-
-
 
 
 
