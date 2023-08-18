@@ -21,11 +21,9 @@ class WelcomeController extends Controller
     }
     function index()
     {
-        $categories = $this->categoryService->getCategories();
-        $colors = $this->colorService->getColors();
-        $sizes = $this->sizeService->getSizes();
+       
         $products = $this->productService->getProducts();
-        return view('welcome', compact('categories', 'sizes', 'colors', 'products'));
+        return view('welcome', compact('products'));
     }
 
 

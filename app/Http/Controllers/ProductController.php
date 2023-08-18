@@ -2,14 +2,13 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Services\Client\ProductService;
 use App\Services\Client\CategoryService;
 
 use App\Services\Client\ColorService;
 use App\Services\Client\SizeService;
 
-use App\Models\Category;
+
 
 class ProductController extends Controller
 {
@@ -42,38 +41,26 @@ class ProductController extends Controller
     }
     function productByCategory($slug)
     {
-        $categories = $this->categoryService->getCategories();
-        $colors = $this->colorService->getColors();
-        $sizes = $this->sizeService->getSizes();
-        
         $nameCate = $this->categoryService->find($slug)->name;
         $products = $this->categoryService->getProduct($slug);
-        return view('product.byCategory', compact('products', 'categories', 'sizes', 'colors', 'nameCate'));
+        return view('product.byCategory', compact('products', 'nameCate'));
     }
 
 
     function productByColor($slug)
     {
-        $categories = $this->categoryService->getCategories();
-        $colors = $this->colorService->getColors();
-        $sizes = $this->sizeService->getSizes();
-
         $color = $this->colorService->find($slug);
         $nameColor = $color->name;
         $products = $this->colorService->getProduct($slug);
-        return view('product.byColor', compact('products', 'categories', 'sizes', 'colors', 'nameColor'));
+        return view('product.byColor', compact('products', 'nameColor'));
     }
 
     function productBySize($slug)
     {
-        $categories = $this->categoryService->getCategories();
-        $colors = $this->colorService->getColors();
-        $sizes = $this->sizeService->getSizes();
-        
         $size = $this->sizeService->find($slug);
         $nameSize = $size->name;
         $products = $this->sizeService->getProduct($slug);
-        return view('product.bySize', compact('products', 'categories', 'sizes', 'colors', 'nameSize'));
+        return view('product.bySize', compact('products', 'nameSize'));
 
     }
 
