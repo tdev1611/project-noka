@@ -39,7 +39,7 @@ class CartRepository
             throw new \Exception('Product not found');
         }
         $slug = $product->slug;
-        $item = CartSession::add([
+        $item = $this->cartSession::add([
             'id' => $product->id,
             'name' => $product->name,
             'qty' => $qty,
@@ -59,8 +59,8 @@ class CartRepository
     {
         $id = request()->input('rowId');
         $qty = request()->input('qty');
-        CartSession::update($id, $qty);
-        $item = CartSession::get($id);
+        $this->cartSession::update($id, $qty);
+        $item = $this->cartSession::get($id);
         return $item;
     }
 
@@ -69,16 +69,16 @@ class CartRepository
     // cartByUser
     public function getCartByUserId()
     {
-        return Cart::where('user_id', Auth::user()->id)->latest()->get();
+        return $this->cart->where('user_id', Auth::user()->id)->latest()->get();
     }
     public function queryCartbyUser()
     {
-        return Cart::where('user_id', Auth::user()->id);
+        return $this->cart->where('user_id', Auth::user()->id);
     }
     // item by Id
     public function getCartById($rowId)
     {
-        $cart = Cart::where('rowId', $rowId)->first();
+        $cart = $this->cart->where('rowId', $rowId)->first();
         return $cart;
     }
     // count items in cart
@@ -110,7 +110,8 @@ class CartRepository
             $existItem->subtotal = $existItem->qty * $product->price;
             return $existItem->save();
         }
-        $item = Cart::create([
+
+        $item = $this->cart->create([
             'rowId' => $rowId,
             'product_id' => $product->id,
             'user_id' => Auth::user()->id,

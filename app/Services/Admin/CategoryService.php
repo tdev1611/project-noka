@@ -1,7 +1,6 @@
 <?php
 namespace App\Services\Admin;
 
-use App\Models\Category;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Admin\CategoryRepository;
 
@@ -21,7 +20,7 @@ class CategoryService
     // status =1 
     function getCategorieByStatus()
     {
-        return $categories = $this->categoryRepository->getCategorieByStatus();
+        return $this->categoryRepository->getCategorieByStatus();
     }
 
     // store
