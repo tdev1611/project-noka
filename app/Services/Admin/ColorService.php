@@ -1,7 +1,6 @@
 <?php
 namespace App\Services\Admin;
 
-use App\Models\Color;
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Admin\ColorRepository;
 use Illuminate\Support\Str;

@@ -105,7 +105,7 @@
                                                         <button type="button" class="btn btn-secondary"
                                                             data-bs-dismiss="modal">No</button>
 
-                                                        <form action="{{ route('admin.colors.destroy', $size->id) }}"
+                                                        <form action="{{ route('admin.sizes.destroy', $size->id) }}"
                                                             method="post">
                                                             @method('DELETE')
                                                             @csrf

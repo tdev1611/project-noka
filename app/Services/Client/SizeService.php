@@ -2,20 +2,26 @@
 namespace App\Services\Client;
 
 use App\Models\Size;
+use App\Repositories\Client\SizeRepository;
 
 class SizeService
 {
-
+    protected $sizeRepository;
+    function __construct(SizeRepository $sizeRepository)
+    {
+        $this->sizeRepository = $sizeRepository;
+    }
 
     function getSizes()
     {
-        return Size::where('status', 1)->orderBy('name', 'asc')->get();
+        return $this->sizeRepository->getAll();
     }
 
+    // get by slug
     function find($slug)
     {
-        $size = Size::where('slug', $slug)->first();
-        if (!$size) {
+        $size = $this->sizeRepository->getBySlug($slug);
+        if ($size === null) {
             throw new \Exception('Not found Size');
         }
         return $size;
@@ -26,6 +32,7 @@ class SizeService
         $products = $size->products()->paginate(8);
         return $products;
     }
+
 
 }
 

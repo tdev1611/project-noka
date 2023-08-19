@@ -27,10 +27,11 @@ class ColorController extends Controller
     {
         $data = $request->all();
         try {
+            $validator = $this->colorService->validateStore($data);
             $this->colorService->store($data);
             return back()->with('success', 'Color created successfully ');
         } catch (\Exception $e) {
-            return back()->with('error', $e->getMessage())->withInput();
+            return redirect()->back()->withErrors($validator)->with('error', $e->getMessage())->withInput();
         }
     }
 

@@ -13,13 +13,12 @@ class ColorRepository
     // bystatus =1 
     function getAll()
     {
-        $categories = Color::where('status', 1)->orderBy('name', 'ASC')->paginate(8);
-        return $categories;
+        return $this->color->where('status', 1)->oldest()->paginate(8);
     }
     // get by slug
     function getBySlug($slug)
     {
-        $color = Color::where('slug', $slug)->first();
+        $color = $this->color->where('slug', $slug)->first();
         if (!$color) {
             return null;
         }

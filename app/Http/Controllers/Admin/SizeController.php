@@ -4,11 +4,10 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
 use App\Services\Admin\SizeService;
-use Illuminate\Support\Str;
 
-class sizeController extends Controller
+
+class SizeController extends Controller
 {
 
     protected $sizeService;
@@ -26,36 +25,24 @@ class sizeController extends Controller
 
     public function store(Request $request)
     {
+        $data = $request->all();
         try {
-            $data = $request->all();
-            $validator = Validator::make($data, [
-                'name' => 'required|unique:sizes,name|max:255',
-                'status' => 'required|in:1,2',
-            ]);
-            if ($validator->fails()) {
-                throw new \Exception('Size created failed');
-            }
-            $slug = str::slug($request->name);
-            $data['slug'] = $slug;
+            $validator = $this->sizeService->validateStore($data);
             $this->sizeService->store($data);
             return redirect()->back()->with('success', 'Size created successfully ');
 
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($validator)->with('error', $e->getMessage())->withInput();
         }
-
     }
-
     function create()
     {
         return abort(404);
     }
     public function show($id)
     {
-        //
         return abort(404);
     }
-
 
     public function edit($id)
     {
@@ -70,17 +57,9 @@ class sizeController extends Controller
 
     public function update(Request $request, $id)
     {
+        $data = $request->all();
         try {
-            $data = $request->all();
-            $validator = Validator::make($data, [
-                'name' => 'required|max:70|unique:sizes,name,' . $this->sizeService->find($id)->id,
-                'status' => 'required|in:1,2',
-            ]);
-            if ($validator->fails()) {
-                throw new \Exception('size update  failed');
-            }
-            $slug = str::slug($request->name);
-            $data['slug'] = $slug;
+            $validator = $this->sizeService->validateStore($data);
             $update = $this->sizeService->update($id, $data);
             $message = 'Update size successfully! ' . "<br> <b> " . $update->name . "</b>";
             return redirect(route('admin.sizes.index'))->with('success', $message);
