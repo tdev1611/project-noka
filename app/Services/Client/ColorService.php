@@ -1,23 +1,29 @@
 <?php
 namespace App\Services\Client;
-
-use App\Models\Color;
+use App\Repositories\Client\ColorRepository;
 
 class ColorService
 {
+    protected $colorRepository;
+    function __construct(ColorRepository $colorRepository)
+    {
+        $this->colorRepository = $colorRepository;
+    }
     function getColors()
     {
-        return Color::where('status', 1)->orderBy('name', 'asc')->get();
+        return $this->colorRepository->getAll();
     }
 
+    // get by slug
     function find($slug)
     {
-        $color = Color::where('slug', $slug)->first();
-        if (!$color) {
-            throw new \Exception('Not Found Color');
+        $color = $this->colorRepository->getBySlug($slug);
+        if ($color === null) {
+            throw new \Exception('Color not found');
         }
         return $color;
     }
+   
     function getProduct($slug)
     {
         $color = $this->find($slug);

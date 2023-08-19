@@ -2,51 +2,86 @@
 namespace App\Services\Admin;
 
 use App\Models\Color;
+use Illuminate\Support\Facades\Validator;
+use App\Repositories\Admin\ColorRepository;
+use Illuminate\Support\Str;
 
 class ColorService
 {
+    protected $colorRepository;
+    function __construct(ColorRepository $colorRepository)
+    {
+        $this->colorRepository = $colorRepository;
+    }
     function getColorByStatus()
     {
-        return Color::where('status', 1)->orderBy('name', 'asc')->get();
+        return $this->colorRepository->getColorByStatus();
     }
     function getColors()
     {
-        $categories = Color::orderBy('name', 'asc')->paginate(10);
-        return $categories;
+        return $colors = $this->colorRepository->getAll();
     }
 
+
+    // store
+    function validateStore($data)
+    {
+        $validator = Validator::make($data, [
+            'name' => 'required|unique:colors,name|max:255',
+            'slug' => 'required|unique:colors,slug|max:255',
+            'status' => 'required|in:1,2',
+        ]);
+        return $validator;
+    }
     function store($data)
     {
-        Color::create($data);
-        return true;
+        $slug = str::slug(request()->name);
+        $data['slug'] = $slug;
+        $validator = $this->validateStore($data);
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors()->first());
+        }
+        return $this->colorRepository->create($data);
     }
     function find($id)
     {
-        $cate = Color::find($id);
-
-        if (!$cate) {
+        $color = $this->colorRepository->find($id);
+        if ($color === null) {
             throw new \Exception('Not found Color');
         }
-        return $cate;
+        return $color;
     }
-
+    // show
     function edit($id)
     {
-        $cate = $this->find($id);
-        return $cate;
+        $color = $this->find($id);
+        return $color;
     }
-
+    // update
+    function validateUpdate($id, $data)
+    {
+        $validator = Validator::make($data, [
+            'name' => 'required|max:70|unique:colors,name,' . $id,
+            'slug' => 'required|max:255|unique:colors,slug,' . $id,
+            'status' => 'required|in:1,2',
+        ]);
+        return $validator;
+    }
     function update($id, $data)
     {
-        $cate = $this->find($id);
-        $cate->update($data);
-        return $cate;
+        $slug = str::slug(request()->name);
+        $data['slug'] = $slug;
+        $validator = $this->validateUpdate($id, $data);
+        if ($validator->fails()) {
+            throw new \Exception($validator->errors()->first());
+        }
+        return $this->colorRepository->update($id, $data);
     }
 
     function delete($id)
     {
-        $cate = $this->find($id);
-        return $cate->delete();
+        $color = $this->find($id);
+        return $color->delete();
     }
 
 }
