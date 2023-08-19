@@ -1,5 +1,6 @@
 <?php
 namespace App\Services\Admin;
+
 use Illuminate\Support\Facades\Validator;
 use App\Repositories\Admin\SizeRepository;
 use Illuminate\Support\Str;
@@ -79,7 +80,7 @@ class SizeService
 
     function delete($id)
     {
-      return  $color = $this->sizeRepository->delete($id);
+        return $color = $this->sizeRepository->delete($id);
     }
 
 }

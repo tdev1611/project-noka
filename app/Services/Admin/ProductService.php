@@ -10,16 +10,22 @@ class ProductService
     // get data
     function getProduct()
     {
-        $products = Product::orderBy('name', 'ASC')->paginate(10);
+        $products = Product::oldest('name')
+            ->with('colors', 'sizes')
+            ->paginate(10);
         $status = request()->status;
         $search = request()->search;
         if ($status == 'disabled') {
-            $products = Product::onlyTrashed()->where('name', 'like', '%' . $search . '%')
-                ->orderByDesc('created_at')->paginate(10);
+            $products = Product::onlyTrashed()
+                ->with('colors', 'sizes')
+                ->where('name', 'like', '%' . $search . '%')
+                ->latest()->paginate(10);
         } else {
             if ($search) {
                 $products = Product::where('name', 'like', '%' . $search . '%')
                     ->orWhere('price', 'like', '%' . $search . '%')
+                    ->with('colors', 'sizes')
+                    ->latest()
                     ->paginate(10);
             }
         }
@@ -27,7 +33,7 @@ class ProductService
     }
     function getRank()
     {
-        $products = Product::orderBy('name', 'ASC')->paginate(10);
+        $products = Product::oldest('name')->paginate(10);
         return $products->firstItem();
     }
 
@@ -43,6 +49,55 @@ class ProductService
     }
 
     // ----------------------------------------------------------------
+    function handleUploadedImage($image, $slug)
+    {
+
+        $filename = $slug . '-' . time() . '.' . $image->getClientOriginalExtension();
+        $path = $image->move('public/uploads/products', $filename);
+        return "public/uploads/products/" . $filename;
+    }
+    // listImgs 
+    function handleUpLoadListImages($images, $slug)
+    {
+        $list_images = [];
+        foreach ($images as $file) {
+            $filename = uniqid() . '-' . $slug . '.' . strtolower($file->getClientOriginalExtension());
+            $path = $file->move('public/uploads/products/list_image', $filename);
+            $list_images[] = "public/uploads/products/list_image/" . $filename;
+        }
+        return json_encode($list_images);
+    }
+    // updateImage
+    function UpdateImage($id, $newImage, $slug)
+    {
+        if (!empty($newImage)) {
+            $img_old = $this->find($id)->image;
+            unlink($img_old);
+        }
+        $filename = $slug . '-' . time() . '.' . strtolower($newImage->getClientOriginalExtension());
+        $path = $newImage->move('public/uploads/products', $filename);
+        return $img = "public/uploads/products/" . $filename;
+
+    }
+    // updateListImages
+    function updateListImages($id, $newListImages, $slug)
+    {
+        $list_images = [];
+        if (!empty($newListImages)) {
+            $list_imgOld = json_decode($this->find($id)->list_image, true);
+            foreach ($list_imgOld as $imgOld) {
+                if (File::exists($imgOld)) {
+                    File::delete($imgOld);
+                }
+            }
+        }
+        foreach ($newListImages as $image) {
+            $filename = uniqid() . '-' . $slug . '.' . strtolower($image->getClientOriginalExtension());
+            $path = $image->move('public/uploads/products/list_image', $filename);
+            $list_images[] = "public/uploads/products/list_image/" . $filename;
+        }
+        return json_encode($list_images);
+    }
     // CRUD
     function store($data)
     {
@@ -64,7 +119,6 @@ class ProductService
         $product = $this->find($id);
         $product->update($data);
         return $product;
-
     }
     function delete($id)
     {
@@ -119,11 +173,10 @@ class ProductService
                 }
             }
         }
-        return $product->forceDelete();
+        return Product::onlyTrashed()->whereIn('id', $ids)->forceDelete();
     }
 
     // validation
-
     function validateStore($data)
     {
         $validator = Validator::make($data, [

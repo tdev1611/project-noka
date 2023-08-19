@@ -1,5 +1,4 @@
 <?php
-
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
@@ -8,16 +7,18 @@ use App\Services\Admin\CategoryService;
 use App\Services\Admin\ProductService;
 use App\Services\Admin\ColorService;
 use App\Services\Admin\SizeService;
-use Illuminate\Support\Facades\File;
+
 
 class ProductController extends Controller
 {
-    protected $categoryService, $sizeService, $productService, $colorService;
+    protected $productService, $categoryService,
+    $sizeService, $colorService;
 
-    function __construct(ProductService $productService, CategoryService $categoryService, SizeService $sizeService, ColorService $colorService)
-    {
-        $this->categoryService = $categoryService;
+    function __construct(
+        ProductService $productService, CategoryService $categoryService, SizeService $sizeService, ColorService $colorService
+    ) {
         $this->productService = $productService;
+        $this->categoryService = $categoryService;
         $this->sizeService = $sizeService;
         $this->colorService = $colorService;
     }
@@ -46,30 +47,18 @@ class ProductController extends Controller
                 throw new \Exception('Product created failed');
             }
             // list imgs 
-            if ($request->hasFile('list_image')) {
-                $list_images = [];
-                $images = $request->file('list_image');
-                foreach ($images as $file) {
-                    $filename = uniqid() . '-' . $request->slug . '.' . strtolower($file->getClientOriginalExtension());
-                    $path = $file->move('public/uploads/products/list_image', $filename);
-                    $list_images[] = "public/uploads/products/list_image/" . $filename;
-                }
-                $data['list_image'] = json_encode($list_images);
-              
-            }
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                $filename = $request->slug . '-' . time() . '.' . $image->getClientOriginalExtension();
-                $path = $image->move('public/uploads/products', $filename);
-                $img = "public/uploads/products/" . $filename;
-                $data['image'] = $img;
-            }
+            $request->hasFile('list_image') ? $data['list_image'] = $this->productService
+                ->handleUpLoadListImages($request->file('list_image'), $request->slug) : null;
+            // handle uploadImg
+            $request->hasFile('image') ? $data['image'] = $this->productService
+                ->handleUploadedImage($request->file('image'), $request->slug) : null;
+            // create
             $product = $this->productService->store($data);
-            $colors = $request->input('colors');
-            $sizes = $request->input('sizes');
-            $product->colors()->attach($colors);
-            $product->sizes()->attach($sizes);
+
+            $product->colors()->attach($request->colors);
+            $product->sizes()->attach($request->sizes);
             return redirect()->back()->with('success', 'Product created successfully ');
+
         } catch (\Exception $e) {
             return redirect()->back()->withErrors($validator)->with('error', $e->getMessage())->withInput();
         }
@@ -77,7 +66,6 @@ class ProductController extends Controller
 
     public function edit($id)
     {
-        //
         try {
             $product = $this->productService->find($id);
             $categories = $this->categoryService->getCategorieByStatus();
@@ -98,45 +86,19 @@ class ProductController extends Controller
             if ($validator->fails()) {
                 throw new \Exception('Product update  failed!');
             }
-            // list images
-            if ($request->hasFile('list_image')) {
-                $list_images = [];
-                $images = $request->file('list_image');
-                if (!empty($images)) {
-                    $list_imgOld = json_decode($this->productService->find($id)->list_image, true);
-                    foreach ($list_imgOld as $imgOld) {
-                        if (File::exists($imgOld)) {
-                            File::delete($imgOld);
-                        } 
-                    }
-                }
-                foreach ($images as $image) {
-                    $filename = uniqid() . '-' . $request->slug . '.' . strtolower($image->getClientOriginalExtension());
-                    $path = $image->move('public/uploads/products/list_image', $filename);
-                    $list_images[] = "public/uploads/products/list_image/" . $filename;
-                }
-                $data['list_image'] = json_encode($list_images);
-            }
-            // image
-            if ($request->hasFile('image')) {
-                $image = $request->file('image');
-                if (!empty($image)) {
-                    $img_old = $this->productService->find($id)->image;
-                    unlink($img_old);
-                }
-                $filename = $request->slug . '-' . time() . '.' . strtolower($image->getClientOriginalExtension());
-                $path = $image->move('public/uploads/products', $filename);
-                $img = "public/uploads/products/" . $filename;
-                $data['image'] = $img;
-            }
-            $product = $this->productService->update($id, $data);
-            $message = 'Update product successfully! ' . "<br> <b> " . $product->name . "</b>";
 
-            $colors = $request->input('colors');
-            $sizes = $request->input('sizes');
-            
-            $product->colors()->sync($colors);
-            $product->sizes()->sync($sizes);
+            // update list_images
+            $request->hasFile('list_image') ? $data['list_image'] = $this->productService
+                ->updateListImages($id, $request->list_image, $request->slug) : null;
+            // update image
+            $request->hasFile('image') ? $data['image'] = $this->productService
+                ->UpdateImage($id, $request->file('image'), $request->slug) : '';
+            // update
+            $product = $this->productService->update($id, $data);
+
+            $product->colors()->sync($request->colors);
+            $product->sizes()->sync($request->sizes);
+            $message = 'Update product successfully! ' . "<br> <b> " . $product->name . "</b>";
             return redirect(route('admin.products.index'))->with('success', $message);
 
         } catch (\Exception $e) {
@@ -147,15 +109,7 @@ class ProductController extends Controller
     {
         return abort(404);
     }
-    // public function destroy($id)
-    // {
-    //     try {
-    //         $this->productService->delete($id);
-    //         return redirect()->back()->with('success', 'Delete products successfully!');
-    //     } catch (\Exception $e) {
-    //         return redirect()->back()->with('error', $e->getMessage());
-    //     }
-    // }
+  
     function delete($id)
     {
         try {
@@ -187,9 +141,9 @@ class ProductController extends Controller
         }
     }
 
+    // optiona method : delete - restore - delete Force
     function action(Request $request)
     {
-
         try {
             $action = $request->action;
             $list_check = $request->list_check;
@@ -217,7 +171,6 @@ class ProductController extends Controller
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
         }
-
 
     }
 
