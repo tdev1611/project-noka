@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Services\Client\ProductService;
 use App\Services\Client\CategoryService;
-
 use App\Services\Client\ColorService;
 use App\Services\Client\SizeService;
 
@@ -28,11 +27,10 @@ class ProductController extends Controller
     function detail($slug)
     {
         try {
-            $productService = new ProductService();
-            $product = $productService->find($slug);
-            $category = $productService->getCategory($slug);
-            $colors = $productService->getColors($slug);
-            $sizes = $productService->getSizes($slug);
+            $product = $this->productService->find($slug);
+            $category = $this->productService->getCategory($slug);
+            $colors = $this->productService->getColors($slug);
+            $sizes = $this->productService->getSizes($slug);
             return view('product.detail', compact('product', 'category', 'colors', 'sizes'));
         } catch (\Exception $e) {
             return redirect()->back()->with('error', $e->getMessage());
@@ -53,7 +51,6 @@ class ProductController extends Controller
 
     function productByColor($slug)
     {
-
         $nameColor = $this->colorService->find($slug)->name;
         $products = $this->colorService->getProduct($slug);
         return view('product.byColor', compact('products', 'nameColor'));

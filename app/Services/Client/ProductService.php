@@ -1,43 +1,45 @@
 <?php
 namespace App\Services\Client;
-
-use App\Models\Product;
-
+use App\Repositories\Client\ProductRepository;
 
 class ProductService
 {
+    protected $productRepository;
+    function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
     function getProducts()
     {
-        // $products = Product::where('status', 1)->orderBy('name', 'ASC')->paginate(10);
-        // return $products;
-        $products = Product::where('status', 1)->orderBy('name', 'ASC')->paginate(8);
+        $products = $this->productRepository->getAllProduct();
         $search = request()->search;
         if ($search) {
-            $products = Product::where('status', 1)->where('name', 'like', '%' . $search . '%')
-                ->orderByDesc('created_at')->paginate(10);
+            $products = $this->productRepository->searchProduct($search);
         }
         return $products;
     }
     function find($slug)
     {
-        $product = Product::where('slug', $slug)->first();
+        $product = $this->productRepository->findProductBySlug($slug);
         if (!$product) {
             throw new \Exception('Product not found');
         }
         return $product;
     }
-
+    // products by cate
     function getCategory($slug)
     {
         $product = $this->find($slug);
         return $product->category;
     }
 
+    // products by color
     function getColors($slug)
     {
         $product = $this->find($slug);
         return $product->colors;
     }
+    // products by size
     function getSizes($slug)
     {
         $product = $this->find($slug);

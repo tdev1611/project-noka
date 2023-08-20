@@ -4,54 +4,50 @@ namespace App\Services\Admin;
 use App\Models\Product;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Validator;
+use App\Repositories\Admin\ProductRepository;
 
 class ProductService
 {
+    protected $productRepository;
+    function __construct(ProductRepository $productRepository)
+    {
+        $this->productRepository = $productRepository;
+    }
     // get data
     function getProduct()
     {
-        $products = Product::oldest('name')
-            ->with('colors', 'sizes')
-            ->paginate(10);
+        $products = $this->productRepository->getProducts();
         $status = request()->status;
         $search = request()->search;
         if ($status == 'disabled') {
-            $products = Product::onlyTrashed()
-                ->with('colors', 'sizes')
-                ->where('name', 'like', '%' . $search . '%')
-                ->latest()->paginate(10);
+            $products = $this->productRepository->searchProductsTrashed($search);
         } else {
             if ($search) {
-                $products = Product::where('name', 'like', '%' . $search . '%')
-                    ->orWhere('price', 'like', '%' . $search . '%')
-                    ->with('colors', 'sizes')
-                    ->latest()
-                    ->paginate(10);
+                $products = $this->productRepository->searchProducts($search);
             }
         }
         return $products;
     }
     function getRank()
     {
-        $products = Product::oldest('name')->paginate(10);
+        $products = $this->productRepository->getProducts();
         return $products->firstItem();
     }
 
     function productCount()
     {
-        return Product::count();
+        return $this->productRepository->productCount();
     }
 
     function getTrashed()
     {
-        $products = Product::onlyTrashed()->get();
+        $products = $this->productRepository->getTrashed();
         return $products;
     }
 
     // ----------------------------------------------------------------
     function handleUploadedImage($image, $slug)
     {
-
         $filename = $slug . '-' . time() . '.' . $image->getClientOriginalExtension();
         $path = $image->move('public/uploads/products', $filename);
         return "public/uploads/products/" . $filename;
@@ -101,13 +97,12 @@ class ProductService
     // CRUD
     function store($data)
     {
-        return Product::create($data);
-
+        return $this->productRepository->create($data);
     }
 
     function find($id)
     {
-        $product = Product::find($id);
+        $product = $this->productRepository->findById($id);
         if (!$product) {
             throw new \Exception('Not found Product ');
         }
@@ -116,14 +111,12 @@ class ProductService
 
     function update($id, $data)
     {
-        $product = $this->find($id);
-        $product->update($data);
-        return $product;
+        return $this->productRepository->update($id, $data);
+
     }
     function delete($id)
     {
-        $product = $this->find($id);
-        return $product->delete();
+        return $this->productRepository->delete($id);
     }
 
     function restore($ids)
@@ -131,8 +124,8 @@ class ProductService
         if (!$ids) {
             throw new \Exception('Not found product to restore');
         }
-        $product = Product::onlyTrashed()->whereIn('id', $ids);
-        return $product->restore();
+        return $this->productRepository->restore($ids);
+
     }
 
     function destroy($ids)
@@ -140,11 +133,11 @@ class ProductService
         if (!$ids) {
             throw new \Exception('Not Found Product');
         }
-        return Product::destroy($ids);
+        return $this->productRepository->destroy($ids);
     }
     function deleteForce($id)
     {
-        $product = Product::onlyTrashed()->find($id);
+        $product = $this->productRepository->getProductTrashedById($id);
         if (!$product) {
             throw new \Exception('Not found product to delete force');
         }
@@ -157,13 +150,14 @@ class ProductService
         }
         return $product->forceDelete();
     }
-
+    // getProductTrashed
     function deleteForceListCheck($ids)
     {
         if (!$ids) {
             throw new \Exception('Not found product to delete force');
         }
-        $products = Product::onlyTrashed()->whereIn('id', $ids)->get();
+        $productsTrash = $this->productRepository->getProductTrashed($ids);
+        $products = $productsTrash->get();
         foreach ($products as $product) {
             unlink($product->image);
             $list_imgs = json_decode($product->list_image, true);
@@ -173,7 +167,7 @@ class ProductService
                 }
             }
         }
-        return Product::onlyTrashed()->whereIn('id', $ids)->forceDelete();
+        return $productsTrash->forceDelete();
     }
 
     // validation
